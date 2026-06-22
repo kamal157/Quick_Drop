@@ -6,9 +6,9 @@ scripts, and share targets without window-switching.
 
 ## Demo
 
-<video src="assets/Quick-Drop-Demo.mp4" controls muted playsinline width="100%">
+<video src="https://github.com/kamal157/Quick_Drop/raw/main/assets/Quick-Drop-Demo.mp4" controls muted playsinline width="100%">
   Your browser does not support the video tag.
-  <a href="assets/Quick-Drop-Demo.mp4">Watch the demo</a>.
+  <a href="https://github.com/kamal157/Quick_Drop/raw/main/assets/Quick-Drop-Demo.mp4">Watch the demo</a>.
 </video>
 
 ## Download
