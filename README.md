@@ -12,8 +12,6 @@ scripts, and share targets without window-switching.
   <video src="https://github.com/user-attachments/assets/1a0edee7-cf6f-4ead-af8d-c94e06b3fe0a" controls muted playsinline width="100%">
     Your browser does not support the video tag.
   </video>
-
-  [Download the demo video](https://github.com/user-attachments/assets/1a0edee7-cf6f-4ead-af8d-c94e06b3fe0a)
 </details>
 
 ## Download
