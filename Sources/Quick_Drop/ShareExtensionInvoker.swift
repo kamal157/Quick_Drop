@@ -89,3 +89,74 @@ final class ShareExtensionInvoker: NSObject, NSSharingServicePickerDelegate {
         picker = nil
     }
 }
+
+// Performs a built-in NSSharingService (AirDrop / Messages / Mail) with a real,
+// retained anchor window.
+//
+// Calling `svc.perform(withItems:)` directly relied on whatever window happened
+// to be key — but the palette is torn down the instant a drop completes, leaving
+// AirDrop with no source window to anchor its UI to, so it silently did nothing.
+// Like the share-extension picker, AirDrop needs a real, on-screen source window
+// that survives until the share finishes; we provide one here and keep it (and
+// the service) alive via the delegate's completion callbacks.
+final class BuiltInShareInvoker: NSObject, NSSharingServiceDelegate {
+    static let shared = BuiltInShareInvoker()
+
+    private var anchorWindow: NSWindow?
+    private var anchorView: NSView?
+    private var service: NSSharingService?
+    private var displayName = ""
+
+    func perform(_ svc: NSSharingService, items: [URL], name: String) {
+        displayName = name
+
+        // A tiny, near-invisible real window at the cursor to anchor the share UI.
+        let mouse = NSEvent.mouseLocation
+        let win = NSWindow(contentRect: NSRect(x: mouse.x - 3, y: mouse.y - 3, width: 6, height: 6),
+                           styleMask: .borderless, backing: .buffered, defer: false)
+        win.level = .floating
+        win.backgroundColor = .clear
+        win.alphaValue = 0.02
+        let view = NSView(frame: NSRect(x: 0, y: 0, width: 6, height: 6))
+        win.contentView = view
+        win.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+        anchorWindow = win
+        anchorView = view
+
+        svc.delegate = self
+        self.service = svc
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            guard svc.canPerform(withItems: items) else {
+                Destination.notify(title: "Quick_Drop", body: "\(self.displayName) can't accept those items.")
+                self.cleanup()
+                return
+            }
+            svc.perform(withItems: items)
+        }
+    }
+
+    func sharingService(_ sharingService: NSSharingService,
+                        sourceWindowForShareItems items: [Any],
+                        sharingContentScope: UnsafeMutablePointer<NSSharingService.SharingContentScope>) -> NSWindow? {
+        sharingContentScope.pointee = .item
+        return anchorWindow
+    }
+
+    func sharingService(_ sharingService: NSSharingService, didShareItems items: [Any]) {
+        cleanup()
+    }
+
+    func sharingService(_ sharingService: NSSharingService, didFailToShareItems items: [Any], error: Error) {
+        cleanup()
+    }
+
+    private func cleanup() {
+        anchorWindow?.orderOut(nil)
+        anchorWindow = nil
+        anchorView = nil
+        service = nil
+    }
+}

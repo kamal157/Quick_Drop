@@ -104,14 +104,11 @@ struct Destination: Codable {
         let key = (service ?? "").lowercased()
 
         // AirDrop / Messages / Mail are reliable built-in services with public
-        // constants — perform them directly.
+        // constants. They still need a real, retained source window to anchor
+        // their UI — the palette is torn down the moment the drop completes — so
+        // route them through an invoker that owns that window.
         if let svc = Destination.builtInService(for: key) {
-            NSApp.activate(ignoringOtherApps: true)
-            guard svc.canPerform(withItems: urls) else {
-                Destination.notify(title: "Quick_Drop", body: "\(name) can't accept those items.")
-                return
-            }
-            svc.perform(withItems: urls)
+            BuiltInShareInvoker.shared.perform(svc, items: urls, name: name)
             return
         }
 

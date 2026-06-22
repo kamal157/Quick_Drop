@@ -4,6 +4,27 @@ A macOS drag-and-drop launcher: a palette that fans out as a semicircle from a
 screen edge on a global hotkey, so you can drop files onto pinned folders, apps,
 scripts, and share targets without window-switching.
 
+## Download
+
+Grab the latest prebuilt app from the
+[**Releases** page](https://github.com/kamal157/Quick_Drop/releases/latest) —
+download `Quick_Drop-vX.Y.Z.zip`, unzip it, and drag `Quick_Drop.app` into
+`/Applications`. No build required. Requires macOS 13 or later.
+
+> **First launch (important).** The build is ad-hoc signed, not notarized with an
+> Apple Developer ID, so macOS Gatekeeper blocks the first open.
+> **Right-click** the app → **Open** → **Open** (don't double-click the first
+> time). If macOS still refuses:
+> ```sh
+> xattr -dr com.apple.quarantine /Applications/Quick_Drop.app
+> ```
+> Optionally verify the download against its checksum:
+> ```sh
+> shasum -a 256 -c Quick_Drop-vX.Y.Z.zip.sha256
+> ```
+
+Prefer to build it yourself? See [Installation](#installation) below.
+
 ## What's implemented
 
 - **Global hotkey** — press **⌃⌥Space** (Control-Option-Space) anywhere to

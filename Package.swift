@@ -9,7 +9,11 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "Quick_Drop",
-            path: "Sources/Quick_Drop"
+            path: "Sources/Quick_Drop",
+            resources: [
+                .copy("AppIcon.icns"),
+                .copy("AppIcon.png")
+            ]
         )
     ]
 )

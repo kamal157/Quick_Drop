@@ -1,0 +1,57 @@
+name: Release
+
+# Build the app on a real macOS runner and attach a downloadable .zip to a
+# GitHub Release whenever a version tag (e.g. v1.0.0) is pushed.
+#
+#   git tag v1.0.0
+#   git push origin v1.0.0
+#
+# The signature is ad-hoc (not an Apple Developer ID), so the published build is
+# NOT notarized — downloaders must right-click -> Open on first launch, or run
+#   xattr -dr com.apple.quarantine /Applications/Quick_Drop.app
+# See the README "Download" / Gatekeeper notes.
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write   # needed to create the Release and upload assets
+
+jobs:
+  release:
+    name: Build & publish
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build app bundle
+        run: |
+          chmod +x build.sh
+          ./build.sh
+
+      - name: Package (ditto preserves signature + symlinks)
+        run: |
+          ditto -c -k --keepParent ./dist/Quick_Drop.app "Quick_Drop-${GITHUB_REF_NAME}.zip"
+          shasum -a 256 "Quick_Drop-${GITHUB_REF_NAME}.zip" > "Quick_Drop-${GITHUB_REF_NAME}.zip.sha256"
+
+      - name: Create / update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Quick_Drop ${{ github.ref_name }}
+          generate_release_notes: true
+          body: |
+            macOS 13 or later.
+
+            **First launch:** this build is ad-hoc signed (not notarized), so macOS
+            Gatekeeper will block the first open. Right-click the app -> **Open** ->
+            **Open**, or run:
+            ```sh
+            xattr -dr com.apple.quarantine /Applications/Quick_Drop.app
+            ```
+            Verify the download (optional): `shasum -a 256 -c Quick_Drop-${{ github.ref_name }}.zip.sha256`
+          files: |
+            Quick_Drop-${{ github.ref_name }}.zip
+            Quick_Drop-${{ github.ref_name }}.zip.sha256
