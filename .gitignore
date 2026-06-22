@@ -1,0 +1,18 @@
+# SwiftPM build artifacts
+.build/
+.swiftpm/
+
+# Built app bundle and distribution archives
+dist/
+*.app/
+*.zip
+
+# Xcode user data (if opened in Xcode)
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+
+# macOS
+.DS_Store
+
+# Claude Code local (machine-specific) settings
+**/.claude/settings.local.json
